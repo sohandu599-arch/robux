@@ -1,5 +1,5 @@
 // API Vercel pour recevoir les demandes du formulaire
-import { nanoid } from 'nanoid';
+const { nanoid } = require('nanoid');
 
 // Stockage en mémoire (remplacer par une DB si besoin)
 const requests = new Map();
@@ -50,4 +50,3 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
-
