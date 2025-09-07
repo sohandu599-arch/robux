@@ -1,8 +1,5 @@
-// API Vercel pour recevoir les demandes du formulaire
-const { nanoid } = require('nanoid');
-
-// Stockage en mémoire (remplacer par une DB si besoin)
-const requests = new Map();
+// API Vercel simple sans dépendances
+let requests = {};
 
 export default async function handler(req, res) {
   // CORS headers
@@ -22,7 +19,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'phone and username required' });
     }
 
-    const id = nanoid(12);
+    const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
     const requestData = {
       phone,
       username,
@@ -30,7 +27,7 @@ export default async function handler(req, res) {
       status: 'pending'
     };
 
-    requests.set(id, requestData);
+    requests[id] = requestData;
     
     console.log(`📨 Nouvelle demande: ${id} - ${username} (${phone})`);
     
@@ -40,7 +37,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     // Récupérer les demandes en attente
     const pending = {};
-    for (const [id, data] of requests.entries()) {
+    for (const [id, data] of Object.entries(requests)) {
       if (data.status === 'pending') {
         pending[id] = data;
       }
