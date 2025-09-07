@@ -1,0 +1,7 @@
+{
+  "name": "robux-panel",
+  "version": "1.0.0",
+  "dependencies": {
+    "nanoid": "^5.0.7"
+  }
+}
